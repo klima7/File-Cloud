@@ -1,4 +1,4 @@
-package project.client;
+package project.client.backend;
 
 import java.io.*;
 import java.net.*;
@@ -36,11 +36,15 @@ class ClientReader implements Runnable {
             else if (command == NEED_FILE_COMMAND) {
                 String relativePath = input.readUTF();
                 System.out.println(">> receiving need " + relativePath);
-                clientBackend.sendFile(relativePath);
+                clientBackend.sendFileData(relativePath);
             }
 
             else if (command == SEND_FILE_COMMAND) {
-                clientBackend.receiveFile(input);
+                String relativePath = input.readUTF();
+                long modificationTime = input.readLong();
+                long size = input.readLong();
+                System.out.println(">> receiving file " + relativePath);
+                clientBackend.receiveFile(relativePath, modificationTime, size, input);
             }
 
             else if (command == DELETE_FILE_COMMAND) {

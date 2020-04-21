@@ -1,4 +1,4 @@
-package project.server;
+package project.server.backend;
 
 import java.net.*;
 import java.io.*;

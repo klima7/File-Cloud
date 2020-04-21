@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Tab fx:id="tab" text="Unknown" xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.server.frontend.ServerTabController">
+    <TableView fx:id="table">
+        <columns>
+            <TableColumn prefWidth="200.0" text="Name">
+            </TableColumn>
+            <TableColumn prefWidth="200.0" text="Size">
+            </TableColumn>
+            <TableColumn prefWidth="200.0" text="Modification">
+            </TableColumn>
+        </columns>
+    </TableView>
+</Tab>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?language javascript?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.server.frontend.ServerLayoutController">
+   <center>
+      <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+      </TabPane>
+   </center>
+   <bottom>
+      <ScrollPane fx:id="logScrollPane" hbarPolicy="NEVER" maxHeight="200.0" BorderPane.alignment="CENTER">
+         <content>
+            <ListView fx:id="logList" maxWidth="1.7976931348623157E308" prefHeight="2000.0" prefWidth="2000.0" />
+         </content>
+      </ScrollPane>
+   </bottom>
+</BorderPane>

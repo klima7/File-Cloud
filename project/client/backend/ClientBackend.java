@@ -1,4 +1,4 @@
-package project.client;
+package project.client.backend;
 
 import java.io.*;
 import java.net.*;
@@ -96,16 +96,17 @@ public class ClientBackend {
         });
     }
 
-    public boolean isFileUpToDate(String relativePath, long otherModificationTime) {
-        File file = new File(directory, relativePath);
-        long modificationTime = file.lastModified();
-        if(modificationTime < otherModificationTime)
-            return false;
-        else
-            return true;
+    public void sendFileDelete(String relativePath) {
+        System.out.println("<< sending delete " + relativePath);
+        executor.execute(new SendWrapper() {
+            void send(DataOutputStream stream) throws IOException {
+                stream.writeInt(DELETE_FILE_COMMAND);
+                stream.writeUTF(relativePath);
+            }
+        });
     }
 
-    public void sendFile(String relativePath, String login) {
+    public void sendFileData(String relativePath, String login) {
         File file = new File(directory, relativePath);
         long modificationTime = file.lastModified();
         long size = file.length();
@@ -137,16 +138,11 @@ public class ClientBackend {
         });
     }
 
-    public void sendFile(String relativePath) {
-        sendFile(relativePath, null);
+    public void sendFileData(String relativePath) {
+        sendFileData(relativePath, null);
     }
 
-    public void receiveFile(DataInputStream input) throws IOException{
-        String relativePath = input.readUTF();
-        long modificationTime = input.readLong();
-        long size = input.readLong();
-        System.out.println(">> receiving file " + relativePath);
-
+    public void receiveFile(String relativePath, long modificationTime, long size, DataInputStream input) throws IOException{
         clientWatcher.addIgnore(relativePath);
 
         File newFile = new File(directory, relativePath);
@@ -174,14 +170,13 @@ public class ClientBackend {
         clientWatcher.removeIgnore(relativePath);
     }
 
-    public void sendFileDelete(String relativePath) {
-        System.out.println("<< sending delete " + relativePath);
-        executor.execute(new SendWrapper() {
-            void send(DataOutputStream stream) throws IOException {
-                stream.writeInt(DELETE_FILE_COMMAND);
-                stream.writeUTF(relativePath);
-            }
-        });
+    public boolean isFileUpToDate(String relativePath, long otherModificationTime) {
+        File file = new File(directory, relativePath);
+        long modificationTime = file.lastModified();
+        if(modificationTime < otherModificationTime)
+            return false;
+        else
+            return true;
     }
 
     public void deleteFile(String relativePath) {

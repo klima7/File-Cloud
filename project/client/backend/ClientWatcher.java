@@ -1,4 +1,4 @@
-package project.client;
+package project.client.backend;
 
 import java.io.*;
 import java.nio.file.*;
@@ -52,7 +52,7 @@ public class ClientWatcher implements Runnable {
 
                     if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
                         System.out.println("ClientWatcher: File " + relativePath + " created");
-                        clientBackend.sendFile(relativePath);
+                        clientBackend.sendFileData(relativePath);
                     }
 
                     else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {

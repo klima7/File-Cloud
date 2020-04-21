@@ -1,4 +1,4 @@
-package project.server;
+package project.server.backend;
 
 import java.io.*;
 import java.net.*;
@@ -23,6 +23,7 @@ class ServerAccepter implements Runnable {
             }
         } catch(IOException e) {
             executor.shutdownNow();
+            System.out.println("<> Server accepter stopped");
         }
     }
 }
