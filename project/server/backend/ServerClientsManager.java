@@ -5,12 +5,23 @@ import java.net.*;
 
 public class ServerClientsManager {
 
-    private ServerBackend serverBackend;
+    private String rootDirectory;
+    private int port;
+    private ServerListener serverListener;
+
     private Map<InetAddress, ServerClient> clients = new HashMap<>();
     private Map<String, ServerUser> users = new HashMap<>();
 
-    public ServerClientsManager(ServerBackend serverBackend) {
-        this.serverBackend = serverBackend;
+    public ServerClientsManager(String rootDirectory, int port) {
+        this.rootDirectory = rootDirectory;
+        this.port = port;
+    }
+
+    public void setServerListener(ServerListener serverListener) {
+        this.serverListener = serverListener;
+
+        for(ServerUser user : users.values())
+            user.setServerListener(serverListener);
     }
 
     public void addClient(InetAddress address, String login) {
@@ -18,11 +29,17 @@ public class ServerClientsManager {
 
         if(user==null) {
             sendUserActiveEveryone(login);
-            user = new ServerUser(login, serverBackend.getRootDirectory());
+            user = new ServerUser(login, rootDirectory);
+            user.setServerListener(serverListener);
             users.put(login, user);
+
+            if(serverListener!=null) {
+                serverListener.userLoggedIn(user.getLogin(), user.getDirectory());
+                serverListener.log("User " + user.getLogin() + " logged in");
+            }
         }
 
-        ServerClient newClient = new ServerClient(address, user, serverBackend.getPort());
+        ServerClient newClient = new ServerClient(address, user, port);
         clients.put(address, newClient);
         user.registerClient(newClient);
 
@@ -37,6 +54,12 @@ public class ServerClientsManager {
         if(user.getClientCount()==0) {
             users.remove(user);
             sendUserInactiveEveryone(user.getLogin());
+
+            // Powiadomienie
+            if(serverListener!=null) {
+                serverListener.userLoggedOut(user.getLogin());
+                serverListener.log("User " + user.getLogin() + " logged out");
+            }
         }
     }
 

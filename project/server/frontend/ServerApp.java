@@ -21,9 +21,14 @@ public class ServerApp extends Application {
         loader.setLocation(getClass().getResource("ServerLayout.fxml"));
         Parent root = loader.load();
 
-        primaryStage.setTitle("Client");
-        primaryStage.setWidth(600);
+        ServerLayoutController controller = loader.getController();
+        backend.setServerListener(new ServerHandler(controller));
+
+        primaryStage.setTitle("PO2 Project Server");
+        primaryStage.setWidth(680);
         primaryStage.setHeight(800);
+        primaryStage.setMinWidth(680);
+        primaryStage.setMinHeight(500);
         primaryStage.setScene(new Scene(root, 300, 275));
         primaryStage.show();
     }

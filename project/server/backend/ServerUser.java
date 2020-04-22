@@ -8,6 +8,7 @@ public class ServerUser {
     private String login;
     private String directory;
     private List<ServerClient> clients = new LinkedList();
+    private ServerListener serverListener;
 
     public ServerUser(String login, String rootDirectory) {
         this.login = login;
@@ -16,6 +17,10 @@ public class ServerUser {
         File file = new File(directory);
         if(!file.exists())
             file.mkdir();
+    }
+
+    public void setServerListener(ServerListener serverListener) {
+        this.serverListener = serverListener;
     }
 
     public String getDirectory() {
@@ -39,6 +44,9 @@ public class ServerUser {
     }
 
     public boolean deleteFile(String relativePath) {
+        if(serverListener!=null)
+            serverListener.filesUpdated(login);
+
         File file = new File(directory, relativePath);
         boolean deleted = file.delete();
         return deleted;
@@ -108,5 +116,8 @@ public class ServerUser {
         }
 
         newFile.setLastModified(modificationTime);
+
+        if(serverListener!=null)
+            serverListener.filesUpdated(login);
     }
 }

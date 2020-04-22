@@ -20,6 +20,7 @@ public class ClientBackend {
     private ExecutorService executor = Executors.newCachedThreadPool();
     private ClientWatcher clientWatcher;
     private ClientUsersTracer usersTracer = new ClientUsersTracer();
+    private ClientListener clientListener;
 
     public ClientBackend(String login, String directory, int port) throws IOException {
         this.login = login;
@@ -27,7 +28,6 @@ public class ClientBackend {
         this.port = port;
         this.addresIP = VirtualIP.allocateIP(IP_GROUP, IP_START);
         clientWatcher = new ClientWatcher(this);
-        sendLogin(login);
     }
 
     public String getDirectory() {
@@ -42,8 +42,16 @@ public class ClientBackend {
         return usersTracer;
     }
 
+    public void setClientListener(ClientListener clientListener) {
+        this.clientListener = clientListener;
+        usersTracer.setClientListener(clientListener);
+        clientWatcher.setClientListener(clientListener);
+        clientListener.log("PO2 Project Client, Welcome");
+    }
+
     public void start() throws IOException {
         System.out.println(addresIP);
+        sendLogin(login);
         serverSocket = new ServerSocket(port, 256, addresIP);
         acceptingThread = new Thread(new ClientAccepter(serverSocket, this));
         acceptingThread.start();
@@ -51,6 +59,7 @@ public class ClientBackend {
 
     public void stop() {
         acceptingThread.interrupt();
+        sendLogout(login);
     }
 
     public void sendLogin(String login) {
@@ -58,6 +67,16 @@ public class ClientBackend {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 stream.writeInt(LOGIN_COMMAND);
+                stream.writeUTF(login);
+            }
+        });
+    }
+
+    public void sendLogout(String login) {
+        System.out.println("<< sending logout " + login);
+        executor.execute(new SendWrapper() {
+            void send(DataOutputStream stream) throws IOException {
+                stream.writeInt(LOGOUT_COMMAND);
                 stream.writeUTF(login);
             }
         });
@@ -168,6 +187,9 @@ public class ClientBackend {
 
         newFile.setLastModified(modificationTime);
         clientWatcher.removeIgnore(relativePath);
+
+        if(clientListener!=null)
+            clientListener.filesUpdated();
     }
 
     public boolean isFileUpToDate(String relativePath, long otherModificationTime) {
@@ -184,6 +206,9 @@ public class ClientBackend {
         File file = new File(directory, relativePath);
         file.delete();
         clientWatcher.removeIgnore(relativePath);
+
+        if(clientListener!=null)
+            clientListener.filesUpdated();
     }
 
     private abstract class SendWrapper implements Runnable {

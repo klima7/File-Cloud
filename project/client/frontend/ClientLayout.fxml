@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?language javascript?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.client.frontend.ClientLayoutController">
+   <center>
+       <TableView fx:id="table">
+           <placeholder><Label text="No files in directory"/></placeholder>
+           <columns>
+               <TableColumn prefWidth="1.0" text="Name">
+                   <cellValueFactory><PropertyValueFactory property="filename" />
+                   </cellValueFactory>
+               </TableColumn>
+               <TableColumn prefWidth="1.0" text="Size [bytes]">
+                   <cellValueFactory><PropertyValueFactory property="size" />
+                   </cellValueFactory>
+               </TableColumn>
+               <TableColumn prefWidth="1.0" text="Modification [ms]">
+                   <cellValueFactory><PropertyValueFactory property="modification" />
+                   </cellValueFactory>
+               </TableColumn>
+           </columns>
+           <columnResizePolicy>
+               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+           </columnResizePolicy>
+       </TableView>
+   </center>
+   <bottom>
+      <TitledPane animated="false" text="Logs" BorderPane.alignment="CENTER">
+         <content>
+      <ScrollPane fx:id="logScrollPane" hbarPolicy="NEVER" maxHeight="200.0" BorderPane.alignment="CENTER">
+         <content>
+            <ListView fx:id="logList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="4000.0" prefWidth="2000.0" />
+         </content>
+      </ScrollPane>
+         </content>
+      </TitledPane>
+   </bottom>
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="Quit">
+          </Menu>
+          <Menu mnemonicParsing="false" text="About">
+          </Menu>
+            <Menu fx:id="loginMenu" mnemonicParsing="false" style="-fx-font-weight: bold;" text="Your login: klima7" />
+        </menus>
+      </MenuBar>
+   </top>
+   <right>
+       <BorderPane>
+           <center>
+      <TitledPane collapsible="false" prefHeight="527.0" prefWidth="200.0" text="Active users" BorderPane.alignment="TOP_LEFT">
+         <content>
+            <ListView fx:id="usersList" prefHeight="200.0" prefWidth="200.0" />
+         </content>
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </TitledPane>
+           </center>
+         <bottom>
+            <Button fx:id="sendButton" mnemonicParsing="false" onAction="#sendFileToUser" prefHeight="26.0" prefWidth="211.0" text="Send To User" BorderPane.alignment="CENTER" />
+         </bottom>
+       </BorderPane>
+   </right>
+
+</BorderPane>

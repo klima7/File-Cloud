@@ -1,7 +1,7 @@
 package project.common;
 
 public class Constants {
-    public static final int PORT = 7000;
+    public static final int PORT = 8000;
     public static final String SERVER_ADDRESS = "127.0.0.1";
 
     public static final int LOGIN_COMMAND = 1;

@@ -16,7 +16,7 @@ public class ServerBackend {
     public ServerBackend(String rootDirectory, int port) {
         this.port = port;
         this.rootDirectory = rootDirectory;
-        this.clientsManager = new ServerClientsManager(this);
+        this.clientsManager = new ServerClientsManager(rootDirectory, port);
 
         File directory = new File(rootDirectory);
         if(!directory.exists())
@@ -31,12 +31,13 @@ public class ServerBackend {
         return rootDirectory;
     }
 
-    public ServerListener getServerListener() {
-        return serverListener;
-    }
-
     public void setServerListener(ServerListener serverListener) {
         this.serverListener = serverListener;
+        clientsManager.setServerListener(serverListener);
+
+        if(serverListener!=null) {
+            serverListener.log("PO2 Project Server, Welcome");
+        }
     }
 
     public void startServer() throws IOException {

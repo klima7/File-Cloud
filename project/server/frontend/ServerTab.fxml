@@ -5,16 +5,26 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.*?>
 
 <Tab fx:id="tab" text="Unknown" xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.server.frontend.ServerTabController">
     <TableView fx:id="table">
         <columns>
-            <TableColumn prefWidth="200.0" text="Name">
+            <TableColumn prefWidth="1.0" text="Name">
+                <cellValueFactory><PropertyValueFactory property="filename" />
+                </cellValueFactory>
             </TableColumn>
-            <TableColumn prefWidth="200.0" text="Size">
+            <TableColumn prefWidth="1.0" text="Size [bytes]">
+                <cellValueFactory><PropertyValueFactory property="size" />
+                </cellValueFactory>
             </TableColumn>
-            <TableColumn prefWidth="200.0" text="Modification">
+            <TableColumn prefWidth="1.0" text="Modification [ms]">
+                <cellValueFactory><PropertyValueFactory property="modification" />
+                </cellValueFactory>
             </TableColumn>
         </columns>
+        <columnResizePolicy>
+        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+        </columnResizePolicy>
     </TableView>
 </Tab>

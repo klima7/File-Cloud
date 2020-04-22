@@ -1,9 +1,10 @@
 package project.server.frontend;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.*;
 import javafx.scene.control.*;
-
-import java.io.IOException;
+import java.io.*;
+import java.util.*;
 
 public class ServerLayoutController {
 
@@ -11,23 +12,23 @@ public class ServerLayoutController {
     private ListView logList;
 
     @FXML
-    private ScrollPane logScrollPane;
-
-    @FXML
     private TabPane tabPane;
 
+    private LinkedList<ServerTabController> tabControllers = new LinkedList<>();
+
     public void initialize() {
-        for(int i=0; i<100; i++)
-            addLog(""+i);
-        addTab().setTitle("klima7");
-        addTab();
+        logList.setSelectionModel(null);
     }
 
     public void addLog(String message) {
-        logList.getItems().add(0, message);
+        GregorianCalendar now = new GregorianCalendar();
+        String prefix = "[" + now.get(GregorianCalendar.HOUR) + ":" + now.get(GregorianCalendar.MINUTE) + ":" +
+                now.get(GregorianCalendar.SECOND) + "." + now.get(GregorianCalendar.MILLISECOND) + "] ";
+
+        logList.getItems().add(0, String.format("%-30s %s", prefix, message));
     }
 
-    public ServerTabController addTab() {
+    public void addTab(String login, String directoryPath) {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("ServerTab.fxml"));
         Tab tab = null;
@@ -36,6 +37,28 @@ public class ServerLayoutController {
         } catch(IOException exception) {}
 
         tabPane.getTabs().add(tab);
-        return loader.getController();
+        ServerTabController tabController = loader.getController();
+        tabController.set(login, directoryPath);
+
+        tabControllers.add(tabController);
+    }
+
+    public void removeTab(String login) {
+        ObservableList<Tab> tabs = tabPane.getTabs();
+        for(Tab tab : tabPane.getTabs()) {
+            if(tab.getText().equals(login)) {
+                tabs.remove(tab);
+                break;
+            }
+        }
+    }
+
+    public void updateTab(String login) {
+        for(ServerTabController controller : tabControllers) {
+            if(controller.getLogin().equals(login)) {
+                controller.updateFilesList();
+                break;
+            }
+        }
     }
 }

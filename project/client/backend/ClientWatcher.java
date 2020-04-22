@@ -13,6 +13,8 @@ public class ClientWatcher implements Runnable {
     private List<String> activeIgnoreList = Collections.synchronizedList(new LinkedList<>());
     private List<String> inactiveIgnoreList = Collections.synchronizedList(new LinkedList<>());
 
+    private ClientListener clientListener;
+
     public ClientWatcher(ClientBackend clientBackend) throws IOException {
         this.clientBackend = clientBackend;
         path = Paths.get(clientBackend.getDirectory());
@@ -21,6 +23,10 @@ public class ClientWatcher implements Runnable {
         Thread thread = new Thread(this);
         thread.setDaemon(true);
         thread.start();
+    }
+
+    public void setClientListener(ClientListener clientListener) {
+        this.clientListener = clientListener;
     }
 
     public void addIgnore(String relativePath) {
@@ -59,6 +65,9 @@ public class ClientWatcher implements Runnable {
                         System.out.println("ClientWatcher: File " + relativePath + " deleted");
                         clientBackend.sendFileDelete(relativePath);
                     }
+
+                    if(clientListener!=null)
+                        clientListener.filesUpdated();
 
                     inactiveIgnoreList.clear();
                 }

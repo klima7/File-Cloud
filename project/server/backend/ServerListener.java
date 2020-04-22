@@ -1,12 +1,11 @@
 package project.server.backend;
 
-import java.io.*;
-
 public interface ServerListener {
 
-    void userLoggedIn(String username, File userDirectory);
-    void userLoggedOut(ServerUser user);
-    void filesUpdated(String username, File userDirectory);
+    void userLoggedIn(String username, String directoryPath);
+    void userLoggedOut(String username);
+    void filesUpdated(String username);
+    void log(String message);
     void errorOccured(String message);
 
 }

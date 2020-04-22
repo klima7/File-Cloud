@@ -10,10 +10,36 @@
       </TabPane>
    </center>
    <bottom>
+      <TitledPane animated="false" text="Logs" BorderPane.alignment="CENTER">
+         <content>
       <ScrollPane fx:id="logScrollPane" hbarPolicy="NEVER" maxHeight="200.0" BorderPane.alignment="CENTER">
          <content>
             <ListView fx:id="logList" maxWidth="1.7976931348623157E308" prefHeight="2000.0" prefWidth="2000.0" />
          </content>
       </ScrollPane>
+         </content>
+      </TitledPane>
    </bottom>
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Quit"/>
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Options">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Open server directory" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+
 </BorderPane>
