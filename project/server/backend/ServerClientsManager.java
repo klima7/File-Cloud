@@ -12,16 +12,10 @@ public class ServerClientsManager {
     private Map<InetAddress, ServerClient> clients = new HashMap<>();
     private Map<String, ServerUser> users = new HashMap<>();
 
-    public ServerClientsManager(String rootDirectory, int port) {
+    public ServerClientsManager(String rootDirectory, int port, ServerListener serverListener) {
         this.rootDirectory = rootDirectory;
         this.port = port;
-    }
-
-    public void setServerListener(ServerListener serverListener) {
         this.serverListener = serverListener;
-
-        for(ServerUser user : users.values())
-            user.setServerListener(serverListener);
     }
 
     public void addClient(InetAddress address, String login) {
@@ -29,17 +23,14 @@ public class ServerClientsManager {
 
         if(user==null) {
             sendUserActiveEveryone(login);
-            user = new ServerUser(login, rootDirectory);
-            user.setServerListener(serverListener);
+            user = new ServerUser(login, rootDirectory, serverListener);
             users.put(login, user);
 
-            if(serverListener!=null) {
-                serverListener.userLoggedIn(user.getLogin(), user.getDirectory());
-                serverListener.log("User " + user.getLogin() + " logged in");
-            }
+            serverListener.userLoggedIn(user.getLogin(), user.getDirectory());
+            serverListener.log("# User " + login + " joined");
         }
 
-        ServerClient newClient = new ServerClient(address, user, port);
+        ServerClient newClient = new ServerClient(address, user, port, serverListener);
         clients.put(address, newClient);
         user.registerClient(newClient);
 
@@ -54,12 +45,8 @@ public class ServerClientsManager {
         if(user.getClientCount()==0) {
             users.remove(user);
             sendUserInactiveEveryone(user.getLogin());
-
-            // Powiadomienie
-            if(serverListener!=null) {
-                serverListener.userLoggedOut(user.getLogin());
-                serverListener.log("User " + user.getLogin() + " logged out");
-            }
+            serverListener.userLoggedOut(user.getLogin());
+            serverListener.log("# User " + user.getLogin() + " left");
         }
     }
 
@@ -84,5 +71,10 @@ public class ServerClientsManager {
     public void sendAllActiveUsersToClient(ServerClient client) {
         for(ServerUser user : users.values())
             client.sendUserActive(user.getLogin());
+    }
+
+    public void sendServerDownEveryone() {
+        for(ServerUser user : users.values())
+            user.sendServerDownEveryone();
     }
 }

@@ -9,7 +9,7 @@
 <BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.client.frontend.ClientLayoutController">
    <center>
        <TableView fx:id="table">
-           <placeholder><Label text="No files in directory"/></placeholder>
+           <placeholder><Label text="No files in directory" /></placeholder>
            <columns>
                <TableColumn prefWidth="1.0" text="Name">
                    <cellValueFactory><PropertyValueFactory property="filename" />
@@ -30,11 +30,11 @@
        </TableView>
    </center>
    <bottom>
-      <TitledPane animated="false" text="Logs" BorderPane.alignment="CENTER">
+      <TitledPane animated="false" prefWidth="800.0" text="Logs" BorderPane.alignment="CENTER">
          <content>
-      <ScrollPane fx:id="logScrollPane" hbarPolicy="NEVER" maxHeight="200.0" BorderPane.alignment="CENTER">
+      <ScrollPane fx:id="logScrollPane" hbarPolicy="NEVER" maxHeight="260.0" prefHeight="260.0" prefWidth="798.0" BorderPane.alignment="CENTER">
          <content>
-            <ListView fx:id="logList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="4000.0" prefWidth="2000.0" />
+            <ListView fx:id="logList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="4000.0" prefWidth="1915.0" />
          </content>
       </ScrollPane>
          </content>
@@ -43,11 +43,13 @@
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
-          <Menu mnemonicParsing="false" text="Quit">
-          </Menu>
-          <Menu mnemonicParsing="false" text="About">
-          </Menu>
-            <Menu fx:id="loginMenu" mnemonicParsing="false" style="-fx-font-weight: bold;" text="Your login: klima7" />
+            <Menu mnemonicParsing="false">
+                <graphic>
+                    <Label onMouseClicked="#openDirectory" text="Open Directory" />
+                </graphic>
+            </Menu>
+            <Menu fx:id="loginMenu" mnemonicParsing="false" style="-fx-font-weight: bold;" text="Your login: unknown" />
+            <Menu fx:id="addressMenu" mnemonicParsing="false" style="-fx-font-weight: bold;" text="Your IP is: unknown" />
         </menus>
       </MenuBar>
    </top>
@@ -56,7 +58,7 @@
            <center>
       <TitledPane collapsible="false" prefHeight="527.0" prefWidth="200.0" text="Active users" BorderPane.alignment="TOP_LEFT">
          <content>
-            <ListView fx:id="usersList" prefHeight="200.0" prefWidth="200.0" />
+            <ListView fx:id="usersList" maxHeight="1.7976931348623157E308" prefHeight="800.0" prefWidth="209.0" />
          </content>
          <font>
             <Font name="System Bold" size="13.0" />

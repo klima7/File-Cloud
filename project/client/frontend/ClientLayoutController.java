@@ -4,10 +4,15 @@ import javafx.collections.*;
 import javafx.event.*;
 import javafx.fxml.*;
 import javafx.scene.control.*;
-import project.client.backend.ClientBackend;
+import javafx.scene.control.Menu;
+import javafx.scene.input.*;
+import project.client.backend.*;
 import project.common.*;
+
+import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 public class ClientLayoutController {
 
@@ -21,38 +26,34 @@ public class ClientLayoutController {
     private Menu loginMenu;
 
     @FXML
+    private Menu addressMenu;
+
+    @FXML
     private TableView table;
 
-    private String login;
-    private String directoryPath;
     private ClientBackend backend;
 
-    public void initialize() {
-        logList.setSelectionModel(null);
-    }
-
-    public void set(String login, String directoryPath, ClientBackend backend) {
-        this.login = login;
-        this.directoryPath = directoryPath;
+    public void set(ClientBackend backend) {
         this.backend = backend;
 
-        loginMenu.setText("Your login: " + login);
+        loginMenu.setText("Your login: " + backend.getLogin());
+        addressMenu.setText("Your IP is: " + backend.getIP().getHostName());
         updateFilesList();
     }
 
     public void addLog(String message) {
         GregorianCalendar now = new GregorianCalendar();
         String prefix = "[" + now.get(GregorianCalendar.HOUR) + ":" + now.get(GregorianCalendar.MINUTE) + ":" +
-                now.get(GregorianCalendar.SECOND) + "." + now.get(GregorianCalendar.MILLISECOND) + "] ";
+                now.get(GregorianCalendar.SECOND) + "] ";
 
-        logList.getItems().add(0, String.format("%-30s %s", prefix, message));
+        logList.getItems().add(0, String.format("%s  %s", prefix, message));
     }
 
     public void updateFilesList() {
         ObservableList items = table.getItems();
         items.clear();
 
-        for(File file : new File(directoryPath).listFiles()) {
+        for(File file : new File(backend.getDirectory()).listFiles()) {
             String filename = file.getName();
             long size = file.length();
             long modification = file.lastModified();
@@ -70,17 +71,11 @@ public class ClientLayoutController {
     }
 
     public void sendFileToUser(ActionEvent event) {
-        System.out.println("=============== Sending file to user ==================");
-
         List<String> selectedUsers = usersList.getSelectionModel().getSelectedItems();
         ObservableList<FileModel> selectedFiles = table.getSelectionModel().getSelectedItems();
 
         if(selectedUsers.size()==0 || selectedFiles.size()==0) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Unable to send");
-            alert.setHeaderText("");
-            alert.setContentText("You must select both File which you want to send and target user from the lists above");
-            alert.showAndWait();
+            addLog("!! You must select file and user before sending");
             return;
         }
 
@@ -93,5 +88,16 @@ public class ClientLayoutController {
         table.getSelectionModel().clearSelection();
     }
 
-
+    public void openDirectory(MouseEvent event) {
+        System.out.println("Hello");
+        new Thread(() -> {
+            try {
+                Desktop desktop = Desktop.getDesktop();
+                File file = new File(backend.getDirectory());
+                desktop.open(file);
+            } catch(IOException e) {
+                addLog("## Unable to open file explorer");
+            }
+        }).start();
+    }
 }

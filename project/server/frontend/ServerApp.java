@@ -22,7 +22,17 @@ public class ServerApp extends Application {
         Parent root = loader.load();
 
         ServerLayoutController controller = loader.getController();
-        backend.setServerListener(new ServerHandler(controller));
+        backend = new ServerBackend(SERVER_DIRECTORY, PORT, new ServerHandler(controller));
+        backend.startServer();
+        controller.set(backend);
+
+        primaryStage.setOnCloseRequest((WindowEvent event) -> {
+            try {
+                backend.shutdownServer();
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+        });
 
         primaryStage.setTitle("PO2 Project Server");
         primaryStage.setWidth(680);
@@ -34,8 +44,6 @@ public class ServerApp extends Application {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        backend = new ServerBackend(SERVER_DIRECTORY, PORT);
-        backend.startServer();
         launch();
         TimeUnit.DAYS.sleep(1);
     }

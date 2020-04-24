@@ -12,32 +12,24 @@
    <bottom>
       <TitledPane animated="false" text="Logs" BorderPane.alignment="CENTER">
          <content>
-      <ScrollPane fx:id="logScrollPane" hbarPolicy="NEVER" maxHeight="200.0" BorderPane.alignment="CENTER">
-         <content>
-            <ListView fx:id="logList" maxWidth="1.7976931348623157E308" prefHeight="2000.0" prefWidth="2000.0" />
-         </content>
-      </ScrollPane>
+              <ScrollPane hbarPolicy="NEVER" maxHeight="260.0" BorderPane.alignment="CENTER">
+                 <content>
+                    <ListView fx:id="logList" maxWidth="1.7976931348623157E308" prefHeight="2000.0" prefWidth="2000.0">
+                    </ListView>
+                 </content>
+              </ScrollPane>
          </content>
       </TitledPane>
    </bottom>
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Quit"/>
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Options">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Open server directory" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Help">
-            <items>
-              <MenuItem mnemonicParsing="false" text="About" />
-            </items>
-          </Menu>
+            <Menu mnemonicParsing="false">
+                <graphic>
+                    <Label text="Open Directory" onMouseClicked="#openDirectory"/>
+                </graphic>
+            </Menu>
+            <Menu fx:id="countMenu" mnemonicParsing="false" style="-fx-font-weight: bold;" text="Active users: 0" />
         </menus>
       </MenuBar>
    </top>

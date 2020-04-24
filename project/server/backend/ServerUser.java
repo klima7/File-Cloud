@@ -10,17 +10,14 @@ public class ServerUser {
     private List<ServerClient> clients = new LinkedList();
     private ServerListener serverListener;
 
-    public ServerUser(String login, String rootDirectory) {
+    public ServerUser(String login, String rootDirectory, ServerListener serverListener) {
         this.login = login;
         this.directory = rootDirectory + "/" + login;
+        this.serverListener = serverListener;
 
         File file = new File(directory);
         if(!file.exists())
             file.mkdir();
-    }
-
-    public void setServerListener(ServerListener serverListener) {
-        this.serverListener = serverListener;
     }
 
     public String getDirectory() {
@@ -100,6 +97,11 @@ public class ServerUser {
     public void sendInactiveUserEveryone(String login) {
         for(ServerClient client : clients)
             client.sendUserInactive(login);
+    }
+
+    public void sendServerDownEveryone() {
+        for(ServerClient client : clients)
+            client.sendServerDown();
     }
 
     public void receiveFileData(String relativePath, long modificationTime, long size, DataInputStream input) throws IOException{

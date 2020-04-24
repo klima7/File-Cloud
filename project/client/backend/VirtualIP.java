@@ -67,12 +67,4 @@ public class VirtualIP {
             return null;
         }
     }
-
-    // Testowy fragment kodu
-    public static void main(String[] args) throws IOException {
-        for(int i=0; i<10; i++) {
-            InetAddress address = VirtualIP.allocateIP("Network", "127.0.0.1");
-            System.out.println(address);
-        }
-    }
 }

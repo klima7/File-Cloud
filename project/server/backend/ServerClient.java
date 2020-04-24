@@ -10,11 +10,13 @@ public class ServerClient {
     private int port;
     private ServerUser user;
     private ExecutorService executor = Executors.newCachedThreadPool();
+    private ServerListener serverListener;
 
-    public ServerClient(InetAddress addressIP, ServerUser user, int port) {
+    public ServerClient(InetAddress addressIP, ServerUser user, int port, ServerListener serverListener) {
         this.addressIP = addressIP;
         this.port = port;
         this.user = user;
+        this.serverListener = serverListener;
     }
 
     public ServerUser getUser() {
@@ -30,22 +32,22 @@ public class ServerClient {
     }
 
     public void sendLoginSuccess() {
-        System.out.println(">> sending login success");
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
+                serverListener.log("<< Sending login success to " + ServerClient.this.toString());
                 stream.writeInt(LOGIN_SUCCESS_COMMAND);
             }
         });
     }
 
     public void sendFile(String relativePath) {
-        System.out.println(">> sending file " + relativePath);
         File file = new File(user.getDirectory(), relativePath);
         long modificationTime = file.lastModified();
         long size = file.length();
 
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
+                serverListener.log("<< Sending file " + relativePath + " to " + ServerClient.this.toString());
                 stream.writeInt(SEND_FILE_COMMAND);
                 stream.writeUTF(relativePath);
                 stream.writeLong(modificationTime);
@@ -63,7 +65,6 @@ public class ServerClient {
     }
 
     public void sendAdvertisement(String relativePath) {
-        System.out.println(">> sending check " + relativePath);
         File file = new File(user.getDirectory(), relativePath);
         long modificationTime = file.lastModified();
 
@@ -72,6 +73,7 @@ public class ServerClient {
 
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
+                serverListener.log("<< Sending advertisement about file " + relativePath + " to " + ServerClient.this.toString());
                 stream.writeInt(CHECK_FILE_COMMAND);
                 stream.writeUTF(relativePath);
                 stream.writeLong(modificationTime);
@@ -86,9 +88,9 @@ public class ServerClient {
     }
 
     public void sendRequest(String relativePath) {
-        System.out.println(">> sending need " + relativePath);
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
+                serverListener.log("<< Sending send request for file " + relativePath + " to " + ServerClient.this.toString());
                 stream.writeInt(NEED_FILE_COMMAND);
                 stream.writeUTF(relativePath);
             }
@@ -96,9 +98,9 @@ public class ServerClient {
     }
 
     public void sendDelete(String relativePath) {
-        System.out.println(">> sending delete " + relativePath);
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
+                serverListener.log("<< Sending delete request for file " + relativePath + " to " + ServerClient.this.toString());
                 stream.writeInt(DELETE_FILE_COMMAND);
                 stream.writeUTF(relativePath);
             }
@@ -106,9 +108,9 @@ public class ServerClient {
     }
 
     public void sendUserActive(String login) {
-        System.out.println(">> sending active " + login);
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
+                serverListener.log("<< Sending active user notification to " + ServerClient.this.toString());
                 stream.writeInt(USER_ACTIVE_COMMAND);
                 stream.writeUTF(login);
             }
@@ -116,11 +118,20 @@ public class ServerClient {
     }
 
     public void sendUserInactive(String login) {
-        System.out.println(">> sending active " + login);
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
+                serverListener.log("<< Sending inactive user notification to " + ServerClient.this.toString());
                 stream.writeInt(USER_INACTIVE_COMMAND);
                 stream.writeUTF(login);
+            }
+        });
+    }
+
+    public void sendServerDown() {
+        serverListener.log("<< Sending server shutdown info to " + ServerClient.this.toString());
+        executor.execute(new SendWrapper() {
+            void send(DataOutputStream stream) throws IOException {
+                stream.writeInt(SERVER_DOWN_COMMAND);
             }
         });
     }
@@ -142,4 +153,7 @@ public class ServerClient {
         abstract void send(DataOutputStream stream) throws IOException;
     }
 
+    public String toString() {
+        return addressIP.getHostName() + "(" + user.getLogin() + ")";
+    }
 }

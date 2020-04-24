@@ -18,4 +18,5 @@ public class Constants {
     public static final int USER_INACTIVE_COMMAND = 9;
 
     public static final int SEND_FILE_TO_USER_COMMAND = 10;
+    public static final int SERVER_DOWN_COMMAND = 10;
 }

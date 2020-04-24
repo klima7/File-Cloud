@@ -8,22 +8,24 @@ class ServerAccepter implements Runnable {
 
     private ServerSocket serverSocket;
     private ServerClientsManager clientsManager;
+    private ServerListener serverListener;
     private ExecutorService executor = Executors.newCachedThreadPool();
 
-    public ServerAccepter(ServerSocket serverSocket, ServerClientsManager clientsManager) {
+    public ServerAccepter(ServerSocket serverSocket, ServerClientsManager clientsManager, ServerListener serverListener) {
         this.serverSocket = serverSocket;
         this.clientsManager = clientsManager;
+        this.serverListener = serverListener;
     }
 
     public void run() {
         try {
             while(!Thread.interrupted()) {
                 Socket socket = serverSocket.accept();
-                executor.execute(new ServerReader(socket, clientsManager));
+                executor.execute(new ServerReader(socket, clientsManager, serverListener));
             }
         } catch(IOException e) {
             executor.shutdownNow();
-            System.out.println("<> Server accepter stopped");
+            System.err.println("<> Server accepter stopped");
         }
     }
 }

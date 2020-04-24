@@ -15,18 +15,15 @@ public class ClientWatcher implements Runnable {
 
     private ClientListener clientListener;
 
-    public ClientWatcher(ClientBackend clientBackend) throws IOException {
+    public ClientWatcher(ClientBackend clientBackend, ClientListener clientListener) throws IOException {
         this.clientBackend = clientBackend;
+        this.clientListener = clientListener;
         path = Paths.get(clientBackend.getDirectory());
         path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
 
         Thread thread = new Thread(this);
         thread.setDaemon(true);
         thread.start();
-    }
-
-    public void setClientListener(ClientListener clientListener) {
-        this.clientListener = clientListener;
     }
 
     public void addIgnore(String relativePath) {
@@ -57,17 +54,16 @@ public class ClientWatcher implements Runnable {
                     }
 
                     if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
-                        System.out.println("ClientWatcher: File " + relativePath + " created");
+                        clientListener.log("# File " + relativePath + " was manually created");
                         clientBackend.sendFileData(relativePath);
                     }
 
                     else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
-                        System.out.println("ClientWatcher: File " + relativePath + " deleted");
+                        clientListener.log("# File " + relativePath + " was manually deleted");
                         clientBackend.sendFileDelete(relativePath);
                     }
 
-                    if(clientListener!=null)
-                        clientListener.filesUpdated();
+                    clientListener.filesUpdated();
 
                     inactiveIgnoreList.clear();
                 }

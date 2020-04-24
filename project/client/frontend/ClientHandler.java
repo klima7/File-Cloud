@@ -1,7 +1,9 @@
 package project.client.frontend;
 
 import javafx.application.*;
+import javafx.scene.control.*;
 import project.client.backend.*;
+import java.util.concurrent.*;
 
 public class ClientHandler implements ClientListener {
 
@@ -12,26 +14,28 @@ public class ClientHandler implements ClientListener {
     }
 
     public void filesUpdated() {
-        System.out.println("===================== Updating files in directory =====================");
         Platform.runLater(() -> controller.updateFilesList());
     }
 
     public void log(String message) {
-        System.out.println("===================== Logging =====================");
         Platform.runLater(() -> controller.addLog(message));
     }
 
-    public void errorOccured(String message) {
-
-    }
-
     public void userLogginIn(String login) {
-        System.out.println("===================== User logged in =====================");
         Platform.runLater(() -> controller.addUser(login));
     }
 
     public void userLogginOut(String login) {
-        System.out.println("===================== User logged out =====================");
         Platform.runLater(() -> controller.removeUser(login));
+    }
+
+    public void errorOccured() {
+        Platform.runLater(() -> {
+            controller.addLog("## Connection failure, server is probably down. Quiting in 5 seconds");
+        });
+
+        try { TimeUnit.SECONDS.sleep(5); }
+        catch(InterruptedException e) { e.printStackTrace(); }
+        System.exit(0);
     }
 }

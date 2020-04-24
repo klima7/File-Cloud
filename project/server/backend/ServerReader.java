@@ -10,13 +10,15 @@ class ServerReader implements Runnable {
 
     private Socket socket;
     private ServerClientsManager clientsManager;
+    private ServerListener serverListener;
 
     private InetAddress address;
     private DataInputStream input;
 
-    public ServerReader(Socket socket, ServerClientsManager clientsManager) {
+    public ServerReader(Socket socket, ServerClientsManager clientsManager, ServerListener serverListener) {
         this.socket = socket;
         this.clientsManager = clientsManager;
+        this.serverListener = serverListener;
     }
 
     public void run() {
@@ -27,7 +29,7 @@ class ServerReader implements Runnable {
 
             if(command==LOGIN_COMMAND) {
                 String login = input.readUTF();
-                System.out.println(">> receiving login " + login);
+                serverListener.log(">> receiving login request from " + address.getHostName() + "(" + login + ")" + " to " + login);
                 clientsManager.addClient(address, login);
                 ServerClient client = clientsManager.getClient(address);
                 client.sendLoginSuccess();
@@ -35,6 +37,7 @@ class ServerReader implements Runnable {
             }
 
             else if(command==LOGOUT_COMMAND) {
+                serverListener.log(">> receiving logout from " + clientsManager.getClient(address));
                 clientsManager.removeClient(address);
             }
 
@@ -43,10 +46,10 @@ class ServerReader implements Runnable {
                 String relativePath = input.readUTF();
                 long modificationTime = input.readLong();
                 long size = input.readLong();
-                System.out.println(">> receiving file " + relativePath);
 
                 ServerClient client = clientsManager.getClient(address);
                 ServerUser user = client.getUser();
+                serverListener.log(">> receiving file " + relativePath + " from " + client);
                 user.receiveFileData(relativePath, modificationTime, size, input);
                 user.sendFileExcept(relativePath, client);
             }
@@ -56,9 +59,9 @@ class ServerReader implements Runnable {
                 String relativePath = input.readUTF();
                 long modificationTime = input.readLong();
                 long size = input.readLong();
-                System.out.println(">> receiving file to user " + login + " - " + relativePath);
 
                 ServerUser user = clientsManager.getUser(login);
+                serverListener.log(">> receiving file " + relativePath + " from " + address.getHostName() + "(" + login + ")" + " to " + login);
                 if(user != null) {
                     user.receiveFileData(relativePath, modificationTime, size, input);
                     user.sendFileEveryone(relativePath);
@@ -68,14 +71,14 @@ class ServerReader implements Runnable {
             else if(command==NEED_FILE_COMMAND) {
                 ServerClient client = clientsManager.getClient(address);
                 String relativePath = input.readUTF();
-                System.out.println(">> receiving need" + relativePath);
+                serverListener.log(">> receiving file request for " + relativePath + " from " + client);
                 client.sendFile(relativePath);
             }
 
             else if(command==DELETE_FILE_COMMAND) {
                 String relativePath = input.readUTF();
-                System.out.println(">> receiving delete " + relativePath);
                 ServerClient client = clientsManager.getClient(address);
+                serverListener.log(">> receiving delete request for " + relativePath + " from " + client);
                 ServerUser user = client.getUser();
                 boolean deleted = user.deleteFile(relativePath);
                 if(deleted) user.sendDeleteExcept(relativePath, client);
@@ -83,10 +86,10 @@ class ServerReader implements Runnable {
 
             else if(command==CHECK_FILE_COMMAND) {
                 String relativePath = input.readUTF();
-                System.out.println(">> receiving check " + relativePath);
                 long modificationTime = input.readLong();
 
                 ServerClient client = clientsManager.getClient(address);
+                serverListener.log(">> Checking if file " + relativePath + " from " + client + " is up to date");
                 if(!client.getUser().checkFile(relativePath, modificationTime))
                     client.sendRequest(relativePath);
             }

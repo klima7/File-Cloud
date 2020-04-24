@@ -1,8 +1,13 @@
 package project.server.frontend;
 
-import javafx.collections.ObservableList;
+import javafx.collections.*;
 import javafx.fxml.*;
 import javafx.scene.control.*;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import project.common.*;
+import project.server.backend.*;
+import java.awt.Desktop;
 import java.io.*;
 import java.util.*;
 
@@ -14,18 +19,22 @@ public class ServerLayoutController {
     @FXML
     private TabPane tabPane;
 
-    private LinkedList<ServerTabController> tabControllers = new LinkedList<>();
+    @FXML
+    private Menu countMenu;
 
-    public void initialize() {
-        logList.setSelectionModel(null);
+    private LinkedList<ServerTabController> tabControllers = new LinkedList<>();
+    private ServerBackend backend;
+
+    public void set(ServerBackend backend) {
+        this.backend = backend;
     }
 
     public void addLog(String message) {
         GregorianCalendar now = new GregorianCalendar();
         String prefix = "[" + now.get(GregorianCalendar.HOUR) + ":" + now.get(GregorianCalendar.MINUTE) + ":" +
-                now.get(GregorianCalendar.SECOND) + "." + now.get(GregorianCalendar.MILLISECOND) + "] ";
+                now.get(GregorianCalendar.SECOND) + "] ";
 
-        logList.getItems().add(0, String.format("%-30s %s", prefix, message));
+        logList.getItems().add(0, String.format("%s  %s", prefix, message));
     }
 
     public void addTab(String login, String directoryPath) {
@@ -41,6 +50,7 @@ public class ServerLayoutController {
         tabController.set(login, directoryPath);
 
         tabControllers.add(tabController);
+        countMenu.setText("Active Users: " + tabControllers.size());
     }
 
     public void removeTab(String login) {
@@ -51,6 +61,15 @@ public class ServerLayoutController {
                 break;
             }
         }
+
+        for(ServerTabController controller : tabControllers) {
+            if(controller.getLogin().equals(login)) {
+                tabControllers.remove(controller);
+                break;
+            }
+        }
+
+        countMenu.setText("Active Users: " + tabControllers.size());
     }
 
     public void updateTab(String login) {
@@ -60,5 +79,18 @@ public class ServerLayoutController {
                 break;
             }
         }
+    }
+
+    public void openDirectory(MouseEvent event) {
+        addLog("## Opening server directory");
+        new Thread(() -> {
+            try {
+                Desktop desktop = Desktop.getDesktop();
+                File file = new File(backend.getRootDirectory());
+                desktop.open(file);
+            } catch(IOException e) {
+                addLog("## Unable to open file explorer");
+            }
+        }).start();
     }
 }
