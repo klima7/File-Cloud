@@ -3,7 +3,7 @@ package project.client.backend;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
-import static project.common.Constants.*;
+import project.common.*;
 
 public class ClientBackend {
     public static final String IP_GROUP = "Virtual Network1";
@@ -57,16 +57,20 @@ public class ClientBackend {
         acceptingThread.start();
     }
 
-    public void stop() {
-        acceptingThread.interrupt();
+    public void stop() throws IOException{
         sendLogout(login);
+        serverSocket.close();
+        acceptingThread.interrupt();
+        executor.shutdownNow();
+        try { executor.awaitTermination(1, TimeUnit.HOURS); }
+        catch(InterruptedException e) { e.printStackTrace(); }
     }
 
     public void sendLogin(String login) {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 clientListener.log("<< sending login request");
-                stream.writeInt(LOGIN_COMMAND);
+                stream.writeInt(Command.LOGIN.asInt());
                 stream.writeUTF(login);
             }
         });
@@ -76,7 +80,7 @@ public class ClientBackend {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 clientListener.log("<< sending logout request");
-                stream.writeInt(LOGOUT_COMMAND);
+                stream.writeInt(Command.LOGOUT.asInt());
                 stream.writeUTF(login);
             }
         });
@@ -92,7 +96,7 @@ public class ClientBackend {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 clientListener.log("<< sending file advertisement for " + relativePath);
-                stream.writeInt(CHECK_FILE_COMMAND);
+                stream.writeInt(Command.CHECK_FILE.asInt());
                 stream.writeUTF(relativePath);
                 stream.writeLong(modificationTime);
             }
@@ -109,7 +113,7 @@ public class ClientBackend {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 clientListener.log("<< sending send request for file " + relativePath);
-                stream.writeInt(NEED_FILE_COMMAND);
+                stream.writeInt(Command.NEED_FILE.asInt());
                 stream.writeUTF(relativePath);
             }
         });
@@ -119,7 +123,7 @@ public class ClientBackend {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 clientListener.log("<< sending delete request for file " + relativePath);
-                stream.writeInt(DELETE_FILE_COMMAND);
+                stream.writeInt(Command.DELETE_FILE.asInt());
                 stream.writeUTF(relativePath);
             }
         });
@@ -134,11 +138,11 @@ public class ClientBackend {
             void send(DataOutputStream stream) throws IOException {
                 if(login == null) {
                     clientListener.log("<< sending file " + relativePath);
-                    stream.writeInt(SEND_FILE_COMMAND);
+                    stream.writeInt(Command.SEND_FILE.asInt());
                 }
                 else {
                     clientListener.log("<< sending file " + relativePath + " to " + login);
-                    stream.writeInt(SEND_FILE_TO_USER_COMMAND);
+                    stream.writeInt(Command.SEND_TO_USER.asInt());
                     stream.writeUTF(login);
                 }
 
@@ -217,7 +221,7 @@ public class ClientBackend {
         public void run() {
             executor.execute(() ->
             {
-                try (Socket socket = new Socket(InetAddress.getByName(SERVER_ADDRESS), port, addresIP, 0)) {
+                try (Socket socket = new Socket(InetAddress.getByName(Constants.SERVER_ADDRESS), port, addresIP, 0)) {
                     DataOutputStream stream = new DataOutputStream(socket.getOutputStream());
                     send(stream);
                 } catch (IOException e) {

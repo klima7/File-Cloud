@@ -26,7 +26,13 @@ public class ClientApp extends Application {
 
         controller.set(backend);
 
-        primaryStage.setOnCloseRequest((WindowEvent event) -> backend.stop());
+        primaryStage.setOnCloseRequest((WindowEvent event) -> {
+            try {
+                backend.stop();
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+        });
 
         primaryStage.setTitle("PO2 Project Client");
         primaryStage.setWidth(680);
@@ -44,6 +50,5 @@ public class ClientApp extends Application {
         }
 
         launch(args);
-        TimeUnit.DAYS.sleep(1);
     }
 }

@@ -54,12 +54,12 @@ public class ClientWatcher implements Runnable {
                     }
 
                     if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
-                        clientListener.log("# File " + relativePath + " was manually created");
+                        clientListener.log("## File " + relativePath + " was manually created");
                         clientBackend.sendFileData(relativePath);
                     }
 
                     else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
-                        clientListener.log("# File " + relativePath + " was manually deleted");
+                        clientListener.log("## File " + relativePath + " was manually deleted");
                         clientBackend.sendFileDelete(relativePath);
                     }
 

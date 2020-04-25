@@ -24,7 +24,9 @@ class ClientAccepter implements Runnable {
                 executor.execute(new ClientReader(socket, clientBackend, clientListener));
             }
         } catch(IOException e) {
-            System.err.println("Socket has been probably closed. Accepting Thread stopped!");
+            executor.shutdownNow();
+            try { executor.awaitTermination(1, TimeUnit.HOURS); }
+            catch(InterruptedException f) {}
         }
     }
 }

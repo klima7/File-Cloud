@@ -3,7 +3,7 @@ package project.server.backend;
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.*;
-import static project.common.Constants.*;
+import project.common.*;
 
 public class ServerClient {
     private InetAddress addressIP;
@@ -35,7 +35,7 @@ public class ServerClient {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 serverListener.log("<< Sending login success to " + ServerClient.this.toString());
-                stream.writeInt(LOGIN_SUCCESS_COMMAND);
+                stream.writeInt(Command.LOGIN_SUCCESS.asInt());
             }
         });
     }
@@ -48,7 +48,7 @@ public class ServerClient {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 serverListener.log("<< Sending file " + relativePath + " to " + ServerClient.this.toString());
-                stream.writeInt(SEND_FILE_COMMAND);
+                stream.writeInt(Command.SEND_FILE.asInt());
                 stream.writeUTF(relativePath);
                 stream.writeLong(modificationTime);
                 stream.writeLong(size);
@@ -74,7 +74,7 @@ public class ServerClient {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 serverListener.log("<< Sending advertisement about file " + relativePath + " to " + ServerClient.this.toString());
-                stream.writeInt(CHECK_FILE_COMMAND);
+                stream.writeInt(Command.CHECK_FILE.asInt());
                 stream.writeUTF(relativePath);
                 stream.writeLong(modificationTime);
             }
@@ -91,7 +91,7 @@ public class ServerClient {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 serverListener.log("<< Sending send request for file " + relativePath + " to " + ServerClient.this.toString());
-                stream.writeInt(NEED_FILE_COMMAND);
+                stream.writeInt(Command.NEED_FILE.asInt());
                 stream.writeUTF(relativePath);
             }
         });
@@ -101,7 +101,7 @@ public class ServerClient {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 serverListener.log("<< Sending delete request for file " + relativePath + " to " + ServerClient.this.toString());
-                stream.writeInt(DELETE_FILE_COMMAND);
+                stream.writeInt(Command.DELETE_FILE.asInt());
                 stream.writeUTF(relativePath);
             }
         });
@@ -111,7 +111,7 @@ public class ServerClient {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 serverListener.log("<< Sending active user notification to " + ServerClient.this.toString());
-                stream.writeInt(USER_ACTIVE_COMMAND);
+                stream.writeInt(Command.USER_ACTIVE.asInt());
                 stream.writeUTF(login);
             }
         });
@@ -121,7 +121,7 @@ public class ServerClient {
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
                 serverListener.log("<< Sending inactive user notification to " + ServerClient.this.toString());
-                stream.writeInt(USER_INACTIVE_COMMAND);
+                stream.writeInt(Command.USER_INACTIVE.asInt());
                 stream.writeUTF(login);
             }
         });
@@ -131,7 +131,7 @@ public class ServerClient {
         serverListener.log("<< Sending server shutdown info to " + ServerClient.this.toString());
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
-                stream.writeInt(SERVER_DOWN_COMMAND);
+                stream.writeInt(Command.SERVER_DOWN.asInt());
             }
         });
     }

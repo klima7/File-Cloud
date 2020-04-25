@@ -82,6 +82,11 @@ public class ClientLayoutController {
         String filename = selectedFiles.get(0).getFilename();
         String username = selectedUsers.get(0);
 
+        if(username.equals(backend.getLogin())) {
+            addLog("!! You can't send file to yourself");
+            return;
+        }
+
         backend.sendFileData(filename, username);
 
         usersList.getSelectionModel().clearSelection();
@@ -89,7 +94,7 @@ public class ClientLayoutController {
     }
 
     public void openDirectory(MouseEvent event) {
-        System.out.println("Hello");
+        addLog("## Opening local directory");
         new Thread(() -> {
             try {
                 Desktop desktop = Desktop.getDesktop();

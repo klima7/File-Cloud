@@ -25,7 +25,8 @@ class ServerAccepter implements Runnable {
             }
         } catch(IOException e) {
             executor.shutdownNow();
-            System.err.println("<> Server accepter stopped");
+            try { executor.awaitTermination(1, TimeUnit.HOURS); }
+            catch(InterruptedException f) {}
         }
     }
 }

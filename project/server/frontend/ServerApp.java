@@ -1,50 +1,85 @@
 package project.server.frontend;
 
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import project.server.backend.ServerBackend;
-
-import static project.common.Constants.*;
+// importy
+import javafx.fxml.*;
+import javafx.scene.*;
+import project.server.backend.*;
 import java.io.*;
-import java.util.concurrent.*;
 import javafx.application.*;
 import javafx.stage.*;
+import static project.common.Constants.*;
 
+/**
+ * Główna klasa serwera zawierająca metodę main.
+ * @author Łukasz Klimkiewicz
+ */
 public class ServerApp extends Application {
 
-    public static final String SERVER_DIRECTORY = "/home/klima7/SERVER";
-    private static ServerBackend backend;
+    /** Tytuł okna */
+    public static final String TITLE = "PO2 Project Server";
 
+    /** Szerokość okna */
+    public static final int WIDTH = 680;
+
+    /** Wysokość okna */
+    public static final int HEIGHT = 800;
+
+    /** Minimalna szerokość okna */
+    public static final int MIN_WIDTH = 680;
+
+    /** Minimalna wysokość okna */
+    public static final int MIN_HEIGHT = 500;
+
+    /**
+     * Metoda uruchamia serwer oraz pokazuje interfejs graficzny.
+     * @param primaryStage Objekt sceny stworzony przez JavaFX.
+     * @throws Exception gdy wystąpi błąd JavaFX.
+     */
+    @Override
     public void start(Stage primaryStage) throws Exception {
+
+        // Pobranie argumentu będącego ścieżką do katalogu serwera
+        String serverDirectory = getParameters().getRaw().get(0);
+
+        // Załadowanie schematu interfejsu użytkownika
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("ServerLayout.fxml"));
         Parent root = loader.load();
-
         ServerLayoutController controller = loader.getController();
-        backend = new ServerBackend(SERVER_DIRECTORY, PORT, new ServerHandler(controller));
-        backend.startServer();
-        controller.set(backend);
 
+        // Uruchomienie backendu
+        ServerBackend backend = new ServerBackend(serverDirectory, PORT, new ServerHandler(controller));
+        backend.startServer();
+        controller.setDirectoryPath(serverDirectory);
+
+        // Ustawienie akcji wykonywanych przy zamykaniu okna
         primaryStage.setOnCloseRequest((WindowEvent event) -> {
             try {
-                backend.shutdownServer();
-            } catch(IOException e) {
-                e.printStackTrace();
+                backend.stopServer();
+            }
+            catch(IOException e) {
+                System.err.println("Error occured during secure stopping. Shuting down immediately");
+                System.exit(1);
             }
         });
 
-        primaryStage.setTitle("PO2 Project Server");
-        primaryStage.setWidth(680);
-        primaryStage.setHeight(800);
-        primaryStage.setMinWidth(680);
-        primaryStage.setMinHeight(500);
+        // Ustalenie wymiarów okna
+        primaryStage.setTitle(TITLE);
+        primaryStage.setWidth(WIDTH);
+        primaryStage.setHeight(HEIGHT);
+        primaryStage.setMinWidth(MIN_WIDTH);
+        primaryStage.setMinHeight(MIN_HEIGHT);
+
+        // Ustawienie sceny i pokazanie GUI
         primaryStage.setScene(new Scene(root, 300, 275));
         primaryStage.show();
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        launch();
-        TimeUnit.DAYS.sleep(1);
+    /**
+     * Metoda uruchamia mechanizm JavaFX.
+     * @param args argumenty, czyli ścieżka do katalogu serwera.
+     */
+    public static void main(String[] args) {
+        launch(args);
     }
 }

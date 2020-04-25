@@ -1,10 +1,8 @@
 package project.server.backend;
 
+import project.common.*;
 import java.io.*;
 import java.net.*;
-
-import static project.common.Constants.*;
-import static project.common.Constants.DELETE_FILE_COMMAND;
 
 class ServerReader implements Runnable {
 
@@ -27,7 +25,7 @@ class ServerReader implements Runnable {
             input = new DataInputStream(socket.getInputStream());
             int command = input.readInt();
 
-            if(command==LOGIN_COMMAND) {
+            if(command==Command.LOGIN.asInt()) {
                 String login = input.readUTF();
                 serverListener.log(">> receiving login request from " + address.getHostName() + "(" + login + ")" + " to " + login);
                 clientsManager.addClient(address, login);
@@ -36,13 +34,13 @@ class ServerReader implements Runnable {
                 client.sendAdvertisements();
             }
 
-            else if(command==LOGOUT_COMMAND) {
+            else if(command==Command.LOGOUT.asInt()) {
                 serverListener.log(">> receiving logout from " + clientsManager.getClient(address));
                 clientsManager.removeClient(address);
             }
 
 
-            else if(command==SEND_FILE_COMMAND) {
+            else if(command==Command.SEND_FILE.asInt()) {
                 String relativePath = input.readUTF();
                 long modificationTime = input.readLong();
                 long size = input.readLong();
@@ -54,28 +52,30 @@ class ServerReader implements Runnable {
                 user.sendFileExcept(relativePath, client);
             }
 
-            else if(command==SEND_FILE_TO_USER_COMMAND) {
+            else if(command==Command.SEND_TO_USER.asInt()) {
                 String login = input.readUTF();
                 String relativePath = input.readUTF();
                 long modificationTime = input.readLong();
                 long size = input.readLong();
 
+                ServerClient sendingClient = clientsManager.getClient(address);
                 ServerUser user = clientsManager.getUser(login);
-                serverListener.log(">> receiving file " + relativePath + " from " + address.getHostName() + "(" + login + ")" + " to " + login);
+                serverListener.log(">> receiving file " + relativePath + " from " + sendingClient + " to " + login);
                 if(user != null) {
+                    relativePath += " (from " + sendingClient.getUser().getLogin() + ")";
                     user.receiveFileData(relativePath, modificationTime, size, input);
                     user.sendFileEveryone(relativePath);
                 }
             }
 
-            else if(command==NEED_FILE_COMMAND) {
+            else if(command==Command.NEED_FILE.asInt()) {
                 ServerClient client = clientsManager.getClient(address);
                 String relativePath = input.readUTF();
                 serverListener.log(">> receiving file request for " + relativePath + " from " + client);
                 client.sendFile(relativePath);
             }
 
-            else if(command==DELETE_FILE_COMMAND) {
+            else if(command==Command.DELETE_FILE.asInt()) {
                 String relativePath = input.readUTF();
                 ServerClient client = clientsManager.getClient(address);
                 serverListener.log(">> receiving delete request for " + relativePath + " from " + client);
@@ -84,7 +84,7 @@ class ServerReader implements Runnable {
                 if(deleted) user.sendDeleteExcept(relativePath, client);
             }
 
-            else if(command==CHECK_FILE_COMMAND) {
+            else if(command==Command.CHECK_FILE.asInt()) {
                 String relativePath = input.readUTF();
                 long modificationTime = input.readLong();
 

@@ -1,8 +1,9 @@
 package project.client.backend;
 
+import project.common.Command;
+
 import java.io.*;
 import java.net.*;
-import static project.common.Constants.*;
 
 class ClientReader implements Runnable {
 
@@ -22,12 +23,12 @@ class ClientReader implements Runnable {
             int command = input.readInt();
 
 
-            if (command == LOGIN_SUCCESS_COMMAND) {
+            if (command == Command.LOGIN_SUCCESS.asInt()) {
                 clientListener.log(">> receiving login success");
                 clientBackend.sendFileCheckAll();
             }
 
-            else if (command == CHECK_FILE_COMMAND) {
+            else if (command == Command.CHECK_FILE.asInt()) {
                 String relativePath = input.readUTF();
                 long modificationTime = input.readLong();
                 clientListener.log(">> receiving advertisement for file " + relativePath);
@@ -35,13 +36,13 @@ class ClientReader implements Runnable {
                     clientBackend.sendFileRequest(relativePath);
             }
 
-            else if (command == NEED_FILE_COMMAND) {
+            else if (command == Command.NEED_FILE.asInt()) {
                 String relativePath = input.readUTF();
                 clientListener.log(">> receiving request for file " + relativePath);
                 clientBackend.sendFileData(relativePath);
             }
 
-            else if (command == SEND_FILE_COMMAND) {
+            else if (command == Command.SEND_FILE.asInt()) {
                 String relativePath = input.readUTF();
                 long modificationTime = input.readLong();
                 long size = input.readLong();
@@ -49,25 +50,25 @@ class ClientReader implements Runnable {
                 clientBackend.receiveFile(relativePath, modificationTime, size, input);
             }
 
-            else if (command == DELETE_FILE_COMMAND) {
+            else if (command == Command.DELETE_FILE.asInt()) {
                 String relativePath = input.readUTF();
                 clientListener.log(">> receiving delete request for file " + relativePath);
                 clientBackend.deleteFile(relativePath);
             }
 
-            else if (command == USER_ACTIVE_COMMAND) {
+            else if (command == Command.USER_ACTIVE.asInt()) {
                 String login = input.readUTF();
                 clientListener.log(">> receiving active user " + login);
                 clientBackend.getUsersTracer().addActiveUser(login);
             }
 
-            else if (command == USER_INACTIVE_COMMAND) {
+            else if (command == Command.USER_INACTIVE.asInt()) {
                 String login = input.readUTF();
                 clientListener.log(">> receiving inactive user " + login);
                 clientBackend.getUsersTracer().removeActiveUser(login);
             }
 
-            else if (command == SERVER_DOWN_COMMAND) {
+            else if (command == Command.SERVER_DOWN.asInt()) {
                 clientListener.errorOccured();
             }
 
