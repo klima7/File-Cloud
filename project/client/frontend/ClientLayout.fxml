@@ -8,7 +8,7 @@
 
 <BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="project.client.frontend.ClientLayoutController">
    <center>
-       <TableView fx:id="table">
+       <TableView fx:id="fileTable">
            <placeholder><Label text="No files in directory" /></placeholder>
            <columns>
                <TableColumn prefWidth="1.0" text="Name">

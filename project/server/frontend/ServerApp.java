@@ -4,13 +4,13 @@ package project.server.frontend;
 import javafx.fxml.*;
 import javafx.scene.*;
 import project.server.backend.*;
-import java.io.*;
+import java.net.InetAddress;
 import javafx.application.*;
 import javafx.stage.*;
-import static project.common.Constants.*;
+import static project.common.ImportantConstants.*;
 
 /**
- * Główna klasa serwera zawierająca metodę main.
+ * Główna klasa serwera, zawiera metodę main.
  * @author Łukasz Klimkiewicz
  */
 public class ServerApp extends Application {
@@ -48,20 +48,12 @@ public class ServerApp extends Application {
         ServerLayoutController controller = loader.getController();
 
         // Uruchomienie backendu
-        ServerBackend backend = new ServerBackend(serverDirectory, PORT, new ServerHandler(controller));
+        ServerBackend backend = new ServerBackend(serverDirectory, PORT, InetAddress.getByName(SERVER_ADDRESS), new ServerHandler(controller));
         backend.startServer();
         controller.setDirectoryPath(serverDirectory);
 
         // Ustawienie akcji wykonywanych przy zamykaniu okna
-        primaryStage.setOnCloseRequest((WindowEvent event) -> {
-            try {
-                backend.stopServer();
-            }
-            catch(IOException e) {
-                System.err.println("Error occured during secure stopping. Shuting down immediately");
-                System.exit(1);
-            }
-        });
+        primaryStage.setOnCloseRequest((WindowEvent event) -> backend.stopServer());
 
         // Ustalenie wymiarów okna
         primaryStage.setTitle(TITLE);

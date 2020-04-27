@@ -59,13 +59,13 @@ class ClientReader implements Runnable {
             else if (command == Command.USER_ACTIVE.asInt()) {
                 String login = input.readUTF();
                 clientListener.log(">> receiving active user " + login);
-                clientBackend.getUsersTracer().addActiveUser(login);
+                clientListener.userLogginIn(login);
             }
 
             else if (command == Command.USER_INACTIVE.asInt()) {
                 String login = input.readUTF();
                 clientListener.log(">> receiving inactive user " + login);
-                clientBackend.getUsersTracer().removeActiveUser(login);
+                clientListener.userLogginOut(login);
             }
 
             else if (command == Command.SERVER_DOWN.asInt()) {

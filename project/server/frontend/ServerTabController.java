@@ -69,8 +69,7 @@ public class ServerTabController {
         for(File file : new File(directoryPath).listFiles()) {
             String filename = file.getName();
             long size = file.length();
-            long modification = file.lastModified();
-            items.add(new FileModel(filename, size, modification));
+            items.add(new FileModel(filename, size, FileModel.convertToReadableTime(file.lastModified())));
         }
     }
 }

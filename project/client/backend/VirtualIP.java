@@ -4,9 +4,23 @@ import java.io.*;
 import java.net.*;
 import java.nio.*;
 
+/**
+ * Klasa umożliwia przydzielanie uruchamianym programom niepowtarzalnych w danej grupie adresów, które rozpoczynają
+ * się od wyznaczonego adresu. Działanie klasy polega na umieszczeniu w katalogu z plikami tymczasowymi pliku binarnego
+ * z następnym adresem IP który ma zostać przydzielony. Każda aplikacja, która chce uzyskać adres IP nakłada blokadę na
+ * ten plik, aby nikt inny jednocześnie go nie odczytywał, rezerwuje dla siebie odczytany adres, inkrementuje o jeden i
+ * zwalnia blokadę.
+ */
 public class VirtualIP {
     private static String tmpDirPath = System.getProperty("java.io.tmpdir");
 
+    /**
+     * Metoda przydziela unikalny adres IP.
+     * @param groupName Nazwa grupy w obrębie której adres ma być unikalny.
+     * @param startingIP Pierwszy, początkowy adres IP.
+     * @return Przydzielony adres IP.
+     * @throws IOException Wyjątek wyrzucany, gdy nastąpi błąd w operacjach na plikach.
+     */
     public static InetAddress allocateIP(String groupName, String startingIP) throws IOException {
         File ipFile = new File(tmpDirPath, groupName);
 
@@ -50,6 +64,11 @@ public class VirtualIP {
         return allocatedAddress;
     }
 
+    /**
+     * Metoda zwiększa adres IP o 1.
+     * @param address Adres IP do zwiększenia.
+     * @return Zwiększony adres IP.
+     */
     private static InetAddress incrementAddress(InetAddress address) {
         int asInt = ByteBuffer.wrap(address.getAddress()).getInt();
         asInt++;

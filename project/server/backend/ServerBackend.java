@@ -2,7 +2,6 @@ package project.server.backend;
 
 import java.io.*;
 import java.net.*;
-import project.common.*;
 
 /**
  * Klasa umożliwia uruchomienie serwera z daną konfiguracją oraz jego zatrzymanie. Po stworzeniu objektu
@@ -10,13 +9,13 @@ import project.common.*;
  * metody stopServer, lecz kolejne jego uruchomienie jest wówczas niemożliwe i objekt staje się już nieprzydatny.
  *
  * Podczas konstrukcji objektu należy przekazać jako parametr objekt implementujący interfejs ServerListener.
- * Jest to interfejs, który umożliwia użytkowniką klasy zareagowanie na pewne zdarzenia, które mogą wystąpić
+ * Jest to interfejs, który umożliwia użytkownikom klasy zdefiniowanie reakcji na zdarzenia, które mogą wystąpić
  * po stronie serwera.
  */
 public class ServerBackend {
 
     /**
-     * Objekt reprezentujący możliwe stany serwera.
+     * Typ wyliczeniowy reprezentuje możliwe stany serwera.
      */
     public enum State {
         /** Serwer jest gotowy do uruchomienia. */
@@ -31,6 +30,7 @@ public class ServerBackend {
     private int port;
     private String rootDirectory;
     private ServerListener serverListener;
+    private InetAddress address;
 
     // Soket na którym serwer oczekuja na połączenia
     private ServerSocket serverSocket;
@@ -49,9 +49,11 @@ public class ServerBackend {
      * @param rootDirectory Ścieżka do bazowego katalogu serwera, w którym będą umieszczane katalogi poszczególnych
      *                      użytkoników. Jeżeli katalog nie istnieje to zostanie utworzony.
      * @param port Numer portu na którym będzie nasłuchiwał serwer i na który będzie wysyłał dane klientom.
+     * @param serverAddress Adres serwera, który będzie ustawiony jako adres źródłowy dla wszystkich wysyłanych komunikatów.
      * @param serverListener Interfejs umożliwiający zdefiniowanie reakcji na zdarzenia, które mogą wystąpić po stronie serwera.
+     * @throws IOException Wyjątek wyrzucany gdy wystąpi problem podczas tworzenia gniazda.
      */
-    public ServerBackend(String rootDirectory, int port, ServerListener serverListener) {
+    public ServerBackend(String rootDirectory, int port, InetAddress serverAddress, ServerListener serverListener) throws IOException {
         // Zapamiętami przekazanym parametrów
         this.port = port;
         this.rootDirectory = rootDirectory;
@@ -59,6 +61,9 @@ public class ServerBackend {
 
         // Ustawienie stanu serwera
         this.state = State.READY;
+
+        // Stworzenie gniazda
+        serverSocket = new ServerSocket(port, 256, serverAddress);
 
         // Stworzenie menadżera klientów
         this.clientsManager = new ServerClientsManager(rootDirectory, port, serverListener);
@@ -75,6 +80,14 @@ public class ServerBackend {
      */
     public int getPort() {
         return port;
+    }
+
+    /**
+     * Metoda zwraca adres IP serwera, który został przekazany w konstruktorze.
+     * @return Adres IP serwera.
+     */
+    public InetAddress getAddress() {
+        return address;
     }
 
     /**
@@ -103,18 +116,24 @@ public class ServerBackend {
 
     /**
      * Metoda uruchamia działanie serwera. Uruchamia potrzebne funkcję w osobnych wątkach i natychmiast kończy działanie.
-     * @throws IOException
      */
-    public void startServer() throws IOException {
-        serverSocket = new ServerSocket(port, 256, InetAddress.getByName(Constants.SERVER_ADDRESS));
+    public void startServer() {
         acceptingThread = new Thread(new ServerAccepter(serverSocket, clientsManager, serverListener));
         acceptingThread.start();
-        serverListener.log("# Server running on port " + port);
+        serverListener.log("# Server is running on port " + port);
     }
 
-    public void stopServer() throws IOException {
+    /**
+     * Metoda zatrzymuje działanie serwera. Jego ponowne uruchomienie jest wówczas niemożliwe.
+     */
+    public void stopServer() {
         clientsManager.sendServerDownEveryone();
         acceptingThread.interrupt();
-        serverSocket.close();
+        try {
+            serverSocket.close();
+            serverListener.log("# Server is stopped");
+        } catch(IOException e) {
+            serverListener.errorOccured("IOException occured while closing socket");
+        }
     }
 }
