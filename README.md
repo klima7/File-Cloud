@@ -1,26 +1,5 @@
-# Ala ma kota
+## Projekt z Programowania Obiektowego II
 
-napis, napis, ***napis***
+Wymagania projektu znajdują się na stronie [przedmiotu](http://neo.dmcs.p.lodz.pl/po2/)
 
-to jest `fajny` napis
-
-lista
-- jeden
-- dwa
-- trzy
-    - cztery
-    - piec
-        - sześć
-        - siedem
-        - osiem
-            1. ala
-            2. piotrek
-            3. kasia
-            
-lista numerowana:
-1. jeden
-2. dwa
-3. trzy
-
-- [x] siemka
-
+![Demo serwera](https://github.com/klima7/PO2-Project/blob/images/clientImage.png)
