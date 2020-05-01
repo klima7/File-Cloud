@@ -50,7 +50,7 @@ public class ClientBackend {
         this.clientListener = clientListener;
 
         // Stworzenie menedżera klientów
-        clientWatcher = new ClientWatcher(this, clientListener);
+        clientWatcher = new ClientWatcher(this);
 
         // Wysłanie logu
         clientListener.log("## Client running on port " + port + ", login is " + login);
@@ -123,7 +123,7 @@ public class ClientBackend {
             sendLogout(login);
             serverSocket.close();
             acceptingThread.interrupt();
-            executor.shutdownNow();
+            executor.shutdown();
             executor.awaitTermination(1, TimeUnit.HOURS);
         }
         catch(Exception e) {

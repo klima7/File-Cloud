@@ -130,9 +130,8 @@ public class ClientLayoutController {
         addLog("## Opening local directory");
         new Thread(() -> {
             try {
-                Desktop desktop = Desktop.getDesktop();
                 File file = new File(backend.getDirectory());
-                desktop.open(file);
+                Desktop.getDesktop().open(file);
             } catch(IOException e) {
                 addLog("## Unable to open file explorer");
             }

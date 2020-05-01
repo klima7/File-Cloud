@@ -6,7 +6,7 @@ import java.util.concurrent.*;
 import project.common.*;
 
 /**
- * Klasa reprezentuje klienta, czyli program po stronie klienta. Posiada przypisany sobie adres IP.
+ * Klasa reprezentuje klienta, w sposób w jaki widzi go serwer.
  */
 public class ServerClient {
 

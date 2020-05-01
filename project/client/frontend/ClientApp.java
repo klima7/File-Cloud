@@ -1,13 +1,13 @@
 package project.client.frontend;
 
+import javafx.scene.control.*;
 import project.client.backend.*;
 import javafx.fxml.*;
 import javafx.scene.*;
 import project.common.*;
 import javafx.application.*;
 import javafx.stage.*;
-
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -16,20 +16,15 @@ import java.util.*;
 public class ClientApp extends Application {
 
     /** Tytuł okna */
-    public static final String TITLE = "PO2 Project Server";
-
+    public static final String TITLE = "PO2 Project Client";
     /** Szerokość okna */
     public static final int WIDTH = 680;
-
     /** Wysokość okna */
     public static final int HEIGHT = 800;
-
     /** Minimalna szerokość okna */
     public static final int MIN_WIDTH = 680;
-
     /** Minimalna wysokość okna */
     public static final int MIN_HEIGHT = 500;
-
     /** Backend klienta */
     private static ClientBackend backend;
 
@@ -39,12 +34,31 @@ public class ClientApp extends Application {
      * @throws Exception Dowolny wyjątek zgłoszony przez JavaFX.
      */
     public void start(Stage primaryStage) throws Exception {
+        String login = null;
+        String directory = null;
 
-        // Sprawdzenie, czy podaną odpowiednią liczbę argumentów
+        // Gdy podano wszystkie argumenty
         List<String> args = getParameters().getRaw();
-        if(args.size()<2) {
-            System.err.println("Invalid arguments count");
-            System.exit(1);
+        if(args.size()>=2) {
+            login = args.get(0);
+            directory = args.get(1);
+        }
+
+        // Gdy nie podano ścieżki do katalogu lokalnego
+        else if(args.size()==1) {
+            login = args.get(0);
+            File file = askForDirectory();
+            if(file==null) System.exit(0);
+            directory = file.getAbsolutePath();
+        }
+
+        // Gdy nie podano ani loginu ani ścieżki
+        else if(args.size()==0) {
+            login = askForLogin();
+            if(login==null) System.exit(0);
+            File file = askForDirectory();
+            if(file==null) System.exit(0);
+            directory = file.getAbsolutePath();
         }
 
         // Wczytanie interfejsu graficznego z pliku FXML
@@ -54,7 +68,7 @@ public class ClientApp extends Application {
         ClientLayoutController controller = loader.getController();
 
         // Stworzenie i uruchomienie backendu
-        backend = new ClientBackend(args.get(0), args.get(1), ImportantConstants.PORT, new ClientHandler(controller));
+        backend = new ClientBackend(login, directory, ImportantConstants.PORT, new ClientHandler(controller));
         try { backend.start(); }
         catch(IOException e) { System.err.println("This port numer is probably in use!"); System.exit(1); }
 
@@ -74,6 +88,28 @@ public class ClientApp extends Application {
         // Ustawienie zawartości okna i pokazanie go
         primaryStage.setScene(new Scene(root, 300, 275));
         primaryStage.show();
+    }
+
+    // Wyświetla okno wyboru katalogu
+    private File askForDirectory() {
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setTitle("Select you local directory:");
+        return chooser.showDialog(null);
+    }
+
+    // Wyświetla proźbę o podanie loginu
+    private String askForLogin() {
+        TextInputDialog dialog = new TextInputDialog("Login");
+
+        dialog.setTitle("Login");
+        dialog.setHeaderText("Enter your login:");
+        dialog.setContentText("Login:");
+
+        Optional<String> result = dialog.showAndWait();
+        if(result.isPresent())
+            return result.get();
+        else
+            return null;
     }
 
     /**

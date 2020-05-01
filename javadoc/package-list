@@ -1,0 +1,5 @@
+project.client.backend
+project.client.frontend
+project.common
+project.server.backend
+project.server.frontend

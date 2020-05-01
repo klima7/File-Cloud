@@ -7,6 +7,8 @@ import project.server.backend.*;
 import java.net.InetAddress;
 import javafx.application.*;
 import javafx.stage.*;
+import java.io.*;
+import java.util.*;
 import static project.common.ImportantConstants.*;
 
 /**
@@ -37,9 +39,17 @@ public class ServerApp extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-        // Pobranie argumentu będącego ścieżką do katalogu serwera
-        String serverDirectory = getParameters().getRaw().get(0);
+        // Ustalenie ścieżki do katalogu serwera
+        String serverDirectory = null;
+        List<String> parameters = getParameters().getRaw();
+        if(parameters.size()>0)
+            serverDirectory = parameters.get(0);
+        else {
+            File directory = askForDirectory();
+            if(directory==null)
+                System.exit(0);
+            serverDirectory = directory.getAbsolutePath();
+        }
 
         // Załadowanie schematu interfejsu użytkownika
         FXMLLoader loader = new FXMLLoader();
@@ -53,7 +63,7 @@ public class ServerApp extends Application {
         controller.setDirectoryPath(serverDirectory);
 
         // Ustawienie akcji wykonywanych przy zamykaniu okna
-        primaryStage.setOnCloseRequest((WindowEvent event) -> backend.stopServer());
+        primaryStage.setOnCloseRequest((WindowEvent event) -> { backend.stopServer(); System.exit(0); });
 
         // Ustalenie wymiarów okna
         primaryStage.setTitle(TITLE);
@@ -65,6 +75,13 @@ public class ServerApp extends Application {
         // Ustawienie sceny i pokazanie GUI
         primaryStage.setScene(new Scene(root, 300, 275));
         primaryStage.show();
+    }
+
+    // Wyświetla okno wyboru katalogu
+    private File askForDirectory() {
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setTitle("Select Server Directory");
+        return chooser.showDialog(null);
     }
 
     /**

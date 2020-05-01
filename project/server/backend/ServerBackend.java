@@ -118,22 +118,30 @@ public class ServerBackend {
      * Metoda uruchamia działanie serwera. Uruchamia potrzebne funkcję w osobnych wątkach i natychmiast kończy działanie.
      */
     public void startServer() {
+        if(state!=State.READY)
+            return;
+
         acceptingThread = new Thread(new ServerAccepter(serverSocket, clientsManager, serverListener));
         acceptingThread.start();
         serverListener.log("# Server is running on port " + port);
+        state = State.RUNNING;
     }
 
     /**
      * Metoda zatrzymuje działanie serwera. Jego ponowne uruchomienie jest wówczas niemożliwe.
      */
     public void stopServer() {
+        if(state!=State.RUNNING)
+            return;
+
         clientsManager.sendServerDownEveryone();
         acceptingThread.interrupt();
         try {
             serverSocket.close();
-            serverListener.log("# Server is stopped");
         } catch(IOException e) {
             serverListener.errorOccured("IOException occured while closing socket");
         }
+        serverListener.log("# Server is stopped");
+        state = State.SHUT_DOWN;
     }
 }

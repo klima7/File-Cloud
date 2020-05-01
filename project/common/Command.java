@@ -11,7 +11,7 @@ public enum Command {
     /** Komenda udanego logowania, wysyłana przez serwer, nic po niej nie występuje. */
     LOGIN_SUCCESS(3),
     /** Komenda wysyłania pliku, wysyłana przez serwer i klienty, występuje po niej nazwa pliku, data modyfikacji i dane pliku. */
-     SEND_FILE(4),
+    SEND_FILE(4),
     /** Komenda żądania usunięcia pliku, wysyłana przez serwer i klienty, występuje po niej nazwa pliku. */
     DELETE_FILE(5),
     /** Komenda informująca o istnieniu pliku, wysyłana przez serwer i klienty, występuje po niej nazwa pliku, rozmiar i data modyfikacji. */
