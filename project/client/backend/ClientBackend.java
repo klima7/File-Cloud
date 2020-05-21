@@ -233,6 +233,9 @@ public class ClientBackend {
 
         executor.execute(new SendWrapper() {
             void send(DataOutputStream stream) throws IOException {
+                try { TimeUnit.SECONDS.sleep(1); }
+                catch(Exception e) {};
+
                 // Gdy plik jest wysyłany do własnego katalogu
                 if(login == null) {
                     clientListener.log("<< sending file " + relativePath);
@@ -355,15 +358,12 @@ public class ClientBackend {
      // Jest to klasa pomocnicza, która umożliwia uniknięcie pisania powtarzającego się kodu w metodach wysyłąjących komendy do serwera.
     private abstract class SendWrapper implements Runnable {
         public void run() {
-            executor.execute(() ->
-            {
-                try (Socket socket = new Socket(InetAddress.getByName(ImportantConstants.SERVER_ADDRESS), port, addresIP, 0)) {
-                    DataOutputStream stream = new DataOutputStream(socket.getOutputStream());
-                    send(stream);
-                } catch (IOException e) {
-                    clientListener.errorOccured();
-                }
-            });
+            try (Socket socket = new Socket(InetAddress.getByName(ImportantConstants.SERVER_ADDRESS), port, addresIP, 0)) {
+                DataOutputStream stream = new DataOutputStream(socket.getOutputStream());
+                send(stream);
+            } catch (IOException e) {
+                clientListener.errorOccured();
+            }
         }
 
          // Metoda w której powinno wystąpić wysyłamie komunikatu za pomocą strumienia stream w klasach pochodnych

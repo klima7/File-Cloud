@@ -90,6 +90,9 @@ public class ServerClient {
      * @param relativePath Ścieżka do wysyłanego pliku względem katalogu użytkownika.
      */
     public void sendFile(String relativePath) {
+        try { TimeUnit.SECONDS.sleep(1); }
+        catch(Exception e) {};
+
         // Odczytanie czasu modyfikacji i rozmiaru pliku
         File file = new File(user.getDirectory(), relativePath);
         long modificationTime = file.lastModified();
