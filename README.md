@@ -1,6 +1,6 @@
-## Projekt z Programowania Obiektowego II
+## File-Cloud
 
-Wymagania projektu znajdują się na stronie [przedmiotu](http://neo.dmcs.p.lodz.pl/po2/)
+Program typu klient-serwer symulujący dysk internetowy i umożliwiający synchronizacją plików pomiędzy różnymi katalogami.
 
 ![Demo serwera](https://github.com/klima7/PO2-Project/blob/images/serverAndClient.png)
 
